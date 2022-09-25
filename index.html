@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap" rel="stylesheet">
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Card Game</title>
+</head>
+<body>
+
+    <h1 class="info-display">Nivel: <span id="level-display"></span></h1>
+    <h1 class="info-display">Usuario: <span id="user-display"></span></h1>
+    <h1 class="info-display">Puntos: <span id="user-points"></span></h1>
+    <button type="button" class="btn btn-primary" onclick="Manager.StartNextLevel()">Siguiente Nivel</button>
+    <div class="container board">
+        <div class="row card-row">
+            <div class="container text-center card-container-top">
+                <h2>Cartas del Enemigo:</h2>
+                <div class="row" id="board-top">
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row card-row">
+            <div class="container text-center card-container-bottom">
+                <h2>Cartas del Jugador:</h2>
+                <div class="row" id="board-bottom">
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2">
+                        <div class="card" id="deck">
+                            <h3>Mazo</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row card-row">
+            <div class="container text-center card-container-bottom">
+                <h2>Mano del Jugador:</h2>
+                <div class="row" id="hand">
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                    <div class="col-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+   
+
+    
+    <!-- JavaScript Bundle with Popper -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    <script src="script/app.js"></script>
+    <script src="script/storage.js"></script>
+</body>
+</html>
