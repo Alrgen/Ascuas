@@ -6,12 +6,21 @@ function SaveUser(){
 
     if (users != null) usersParce = users.split(",");
 
-    console.log(usersParce);
 
     if (!IsUserRegistered(usersParce)) {
         usersParce.push(playerName);
         localStorage.setItem('users', usersParce);
-        localStorage.setItem(`${playerName}`, 0);
+
+        User.name = playerName;
+        User.points = 0;
+        User.unlockCards = [];
+        User.deck = [1, 1, 1, 2, 2];
+
+        SaveDeck();
+        LoadDeck();
+
+        //localStorage.setItem(`${playerName}Deck`, JSON.stringify(player.deckCards));
+
         Swal.fire({
             title: 'Usuario Guardado!',
             text: `El usuario ${playerName} ha sido registrado`,
@@ -28,25 +37,48 @@ function IsUserRegistered(usersParce){
             return true;
         }
     }
+    return false;
 }
 
-function SaveProgress(){    
-    let lastPoints = parseInt(localStorage.getItem(`${playerName}`));
+function SaveProgress(){
 
-    if (lastPoints < player.points){
-        localStorage.setItem(`${playerName}`, player.points)
-    }
+    localStorage.setItem(`${playerName}Points`, JSON.stringify(User.points));
+
 }
 
 function LoadProgress(user){
-    let points = parseInt(localStorage.getItem(user));
 
-    player.points = points;
+    User.name = playerName;
+    User.points = JSON.parse(localStorage.getItem(`${user}Points`));
+
+    LoadDeck();
 
     Swal.fire({
         title: 'Usuario Cargado',
-        text: `El usuario ${playerName} tiene un total de ${player.points} puntos.`,
+        text: `El usuario ${playerName} tiene un total de ${User.points} ascuas.`,
         icon: 'success',
         confirmButtonText: 'Continuar'
     });
 }
+
+function SaveDeck(){
+    localStorage.setItem(`${User.name}Deck`, JSON.stringify(User.deck));
+}
+
+function LoadDeck(){
+
+    console.log(User.name);
+
+    let deck = JSON.parse(localStorage.getItem(`${User.name}Deck`));
+    let deckCards = []
+
+    for (let card of deck){
+        for (let i = 0; i < CardsArray.length; i++){
+            let newCard = new CardsArray[i];
+            newCard.ID == card && deckCards.push(new CardsArray[i]);
+        }
+    }
+
+    player.AddCardToDeck(deckCards);
+}
+

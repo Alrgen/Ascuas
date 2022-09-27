@@ -1,15 +1,15 @@
 //CLase padre de todas las cartas
 class Card{
-    constructor(name, id,damage,maxHealth, manaCost, image){ //Estadisticas de las cartas
+    constructor(name, ID,damage,maxHealth, manaCost, image){ //Estadisticas de las cartas
         this.name = name;
-        this.id = id;
+        this.ID = ID;
         this.damage = damage;
         this.maxHealth = maxHealth;
         this.health = this.maxHealth;
         this.manaCost = manaCost;
         this.master;
         this.image = image;
-        this.cardHTML = document.createElement('div');
+        this.cardHTML;
         this.damageHTML;
         this.healthHTML;
         this.slot = null;
@@ -18,6 +18,7 @@ class Card{
     }
 
     MoveToHand(index){
+
         let slot = this.master.hand.children[index];
 
         this.slot = slot;
@@ -48,8 +49,11 @@ class Card{
     }
 
     CreateCard(){ //Esta función crea los elementos HTML de la carta
+        this.cardHTML = document.createElement('div');
+        
         this.cardHTML.classList.add(`card`);
         this.cardHTML.classList.add(`${this.master.name}`)
+
 
         this.OnClick();
 
@@ -85,65 +89,69 @@ class Card{
     OnClick(){
         if (this.master == player){
             this.cardHTML.addEventListener('click', () => {
-                if (this.state == "inHand"){
-                    this.MoveToBoard();
-                    return;
-                }
-                if (this.state == "inBoard"){
-
-                    if(this.master.selectedCard != null){
-                        this.master.selectedCard.cardHTML.classList.remove("selected");
-                        this.master.selectedCard = null;
+                if (GameManager.turnOf == this.master.name){
+                    if (this.state == "inHand"){
+                        this.MoveToBoard();
+                        return;
                     }
-
-                    this.master.selectedCard = this;
-                    this.cardHTML.classList.toggle("selected");
-                    return;
-                }
+                    if (this.state == "inBoard"){
+    
+                        if(this.master.selectedCard != null){
+                            this.master.selectedCard.cardHTML.classList.remove("selected");
+                            this.master.selectedCard = null;
+                        }
+    
+                        this.master.selectedCard = this;
+                        this.cardHTML.classList.toggle("selected");
+                        return;
+                    }
+                }  
             });
         }
         if (this.master == enemy){
             this.cardHTML.addEventListener('click', () => {
-                if (player.selectedCard != null){
-                    this.TakeDamage(player.selectedCard.damage);
-                    player.selectedCard.TakeDamage(this.damage);
+                if (GameManager.turnOf == playerName) {
+                    if (player.selectedCard != null){
+                        this.TakeDamage(player.selectedCard.damage);
+                        player.selectedCard.TakeDamage(this.damage);
+                    }
                 }
             })
         }
     }
 
     TakeDamage(damage){ //Función llamada cuando la carta recibe daño
-        if (this.health - damage <= 0){
-            this.health = 0;
-        } else {
-            this.health -= damage;
-        }
-        //alert(`A la carta ${this.name} de ${this.master.name} le queda ${this.health} de vida!`);
-        this.healthHTML.textContent = this.health; //Actualizo la vida de la carta en el display
-        if (this.health <= 0) this.DestroySelf();
+        (this.health - damage <= 0) ? (this.health = 0) : (this.health -= damage);
+        (this.health <= 0) && this.DestroySelf();
 
- 
+        this.healthHTML.textContent = this.health; //Actualizo la vida de la carta en el display
     }
 
     DestroySelf(){ //Función que cumprueba si la vida de la carta es menor o igual a 0 para establecer el estado de "muerto"
         this.master.selectedCard = null;
         this.master.RemoveCardFromBoard(this);
         this.slot.innerHTML = "";
+
+        if (this.master == enemy){
+            GameManager.EndLevel();
+        }
     }
 }
 
 function Card001(){ //Función constructora de cartas
-    return new Card("Goblin", 001, 1, 2, 2, "./media/goblin.jpg");
+    return new Card("Goblin", 1, 1, 2, 2, "./media/goblin.jpg");
 }
 function Card002(){
-    return new Card("Soldado", 002, 1, 3, 3, "./media/soldier.jpg");
+    return new Card("Soldado", 2, 1, 3, 3, "./media/soldier.jpg");
 }
 function Card003(){
-    return new Card("Brujo", 003, 3, 1, 4,  "./media/brujo.jpg");
+    return new Card("Brujo", 3, 3, 1, 4,  "./media/brujo.jpg");
 }
 function Card004(){
-    return new Card("Golem", 004, 0, 4, 4,  "./media/golem.jpg");
+    return new Card("Golem", 4, 0, 4, 4,  "./media/golem.jpg");
 }
+
+const CardsArray = [Card001, Card002, Card003, Card004];
 
 //Clase padre del jugador
 class Player{
@@ -175,19 +183,20 @@ class Player{
 
     //Funciones del mazo-----------------------
     AddCardToDeck(cards){
-        if (this.deckCards.length < this.deckSize){
-            cards.forEach(card => {
+
+        cards.forEach(card => {
+            if (this.deckCards.length < this.deckSize){
                 card.master = this;
                 this.deckCards.push(card);
-            });
-        } else{
-            Swal.fire({
-                title: 'Mazo lleno!',
-                text: 'Tienes el máximo de cartas posible en el mazo.',
-                icon: 'error',
-                confirmButtonText: 'Continuar'
-            });
-        }
+            } else {
+                Swal.fire({
+                    title: 'Mazo lleno!',
+                    text: 'Tienes el máximo de cartas posible en el mazo.',
+                    icon: 'error',
+                    confirmButtonText: 'Continuar'
+                });
+            }
+        })
     }
     RemoveCardFromDeck(card){
         const index = this.deckCards.indexOf(card);
@@ -214,6 +223,9 @@ class Player{
 
     //Funciones de la mano---------------------------
     AddCardToHand(card){
+
+        console.log(card);
+        console.log(User);
 
         let slot = this.EmptySlotInHand();
 
@@ -274,9 +286,7 @@ class Player{
     }
     RemoveCardFromBoard(card){
         const index = this.boardCards.indexOf(card);
-        if (index > -1){
-            this.boardCards.splice(index, 1, null);
-        }
+        index > -1 && this.boardCards.splice(index, 1, null);
     }
 }
 
@@ -307,22 +317,26 @@ class Enemy{
     }
     RemoveCardFromBoard(card){
         const index = this.boardCards.indexOf(card);
-        if (index > -1){
-            this.boardCards.splice(index, 1);
-        }
+
+        index > -1 && this.boardCards.splice(index, 1);
     }
 }
 
-let Manager = {
+let User = {
+    name:"",
+    points:0,
+    unlockCards:[],
+    deck:[]
+}
+
+let GameManager = {
     level:0,
     levelDisplay:document.getElementById("level-display"),
     cards:[],
     cardsInBoard:0,
+    turnOf: '',
     StartNextLevel(){
         if (this.CardsInGame() === 0){
-            player.points += 1 * this.level;
-            pointsDisplay.innerHTML = player.points;
-            SaveProgress();
             this.LevelCards();
             this.levelDisplay.innerHTML = this.level.toString();
             this.level++;
@@ -338,6 +352,21 @@ let Manager = {
                 title: 'Elimina al anemigo!',
                 text: `Al enemigo todavia le quedan ${this.CardsInGame()} cartas.`,
                 icon: 'warning',
+                confirmButtonText: 'Continuar'
+            });
+        }
+    },
+    EndLevel(){
+        if (this.CardsInGame() === 0){
+            let pointsReward = 1 * this.level;
+            User.points += pointsReward;
+            pointsDisplay.innerHTML = User.points;
+            SaveProgress();
+
+            Swal.fire({
+                title: 'Nivel Superado!',
+                text: `Has obtenido ${pointsReward} ascuas de recompensa!`,
+                icon: 'success',
                 confirmButtonText: 'Continuar'
             });
         }
@@ -383,6 +412,7 @@ Swal.fire({
     html: `<input type="text" id="user" class="swal2-input" placeholder="Nombre de Usuario">`,
     confirmButtonText: 'Aceptar',
     focusConfirm: false,
+    allowOutsideClick: false,
     preConfirm: () => {
         const user = Swal.getPopup().querySelector('#user').value;
 
@@ -407,15 +437,16 @@ const pointsDisplay = document.getElementById("user-points");
 let enemy;
 
 function StartGame(){
-    userDisplay.innerHTML = playerName;
-    pointsDisplay.innerHTML = player.points;
+    userDisplay.innerHTML = User.name;
+    pointsDisplay.innerHTML = User.points;
 
     player.name = playerName;
+
     enemy = new Enemy("Enemigo");
     
-    
-    //Añado cartas al mazo del jugador y del enemigo
-    player.AddCardToDeck([new Card001, new Card001, new Card002, new Card003, new Card003, new Card004]);
+    pointsDisplay.innerHTML = User.points;
+
+    GameManager.turnOf = playerName;
     
     player.deck.addEventListener('click', () => {
         player.TakeCardFromDeck();

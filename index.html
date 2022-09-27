@@ -14,53 +14,56 @@
 </head>
 <body>
 
-    <h1 class="info-display">Nivel: <span id="level-display"></span></h1>
-    <h1 class="info-display">Usuario: <span id="user-display"></span></h1>
-    <h1 class="info-display">Puntos: <span id="user-points"></span></h1>
-    <button type="button" class="btn btn-primary" onclick="Manager.StartNextLevel()">Siguiente Nivel</button>
-    <div class="container board">
-        <div class="row card-row">
-            <div class="container text-center card-container-top">
-                <h2>Cartas del Enemigo:</h2>
-                <div class="row" id="board-top">
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
+    <div class="main-content">
+        <h1 class="info-display">Nivel: <span id="level-display"></span></h1>
+        <h1 class="info-display">Usuario: <span id="user-display"></span></h1>
+        <h1 class="info-display">Ascuas: <span id="user-points"></span></h1>
+        <button type="button" class="btn btn-primary" onclick="GameManager.StartNextLevel()">Siguiente Nivel</button>
+        <div class="container board">
+            <div class="row card-row">
+                <div class="container text-center card-container-top">
+                    <h2>Cartas del Enemigo:</h2>
+                    <div class="row" id="board-top">
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row card-row">
-            <div class="container text-center card-container-bottom">
-                <h2>Cartas del Jugador:</h2>
-                <div class="row" id="board-bottom">
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2">
-                        <div class="card" id="deck">
-                            <h3>Mazo</h3>
+            <div class="row card-row">
+                <div class="container text-center card-container-bottom">
+                    <h2>Cartas del Jugador:</h2>
+                    <div class="row" id="board-bottom">
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2">
+                            <div class="card" id="deck">
+                                <h3>Mazo</h3>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row card-row">
-            <div class="container text-center card-container-bottom">
-                <h2>Mano del Jugador:</h2>
-                <div class="row" id="hand">
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
-                    <div class="col-2"></div>
+            <div class="row card-row">
+                <div class="container text-center card-container-bottom">
+                    <h2>Mano del Jugador:</h2>
+                    <div class="row" id="hand">
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+   
    
    
 
