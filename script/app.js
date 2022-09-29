@@ -1,6 +1,6 @@
 //CLase padre de todas las cartas
 class Card{
-    constructor(name, ID,damage,maxHealth, manaCost, image){ //Estadisticas de las cartas
+    constructor(name, ID,damage,maxHealth, manaCost, image, cost){ //Estadisticas de las cartas
         this.name = name;
         this.ID = ID;
         this.damage = damage;
@@ -15,6 +15,7 @@ class Card{
         this.slot = null;
         this.isInBoard = false;
         this.state = "inDeck";
+        this.cost = cost;
     }
 
     MoveToHand(index){
@@ -89,7 +90,7 @@ class Card{
     OnClick(){
         if (this.master == player){
             this.cardHTML.addEventListener('click', () => {
-                if (GameManager.turnOf == this.master.name){
+                if (GameManager.turnOfPlayer == true){
                     if (this.state == "inHand"){
                         this.MoveToBoard();
                         return;
@@ -110,10 +111,13 @@ class Card{
         }
         if (this.master == enemy){
             this.cardHTML.addEventListener('click', () => {
-                if (GameManager.turnOf == playerName) {
+                if (GameManager.turnOfPlayer == true) {
                     if (player.selectedCard != null){
                         this.TakeDamage(player.selectedCard.damage);
                         player.selectedCard.TakeDamage(this.damage);
+                        player.selectedCard != null && player.selectedCard.cardHTML.classList.toggle("selected");
+                        player.selectedCard = null;
+                        GameManager.NextTurn();
                     }
                 }
             })
@@ -121,6 +125,13 @@ class Card{
     }
 
     TakeDamage(damage){ //Función llamada cuando la carta recibe daño
+        
+        this.cardHTML != null && this.cardHTML.classList.add("takeDamage");
+
+        setTimeout(()=>{
+            this.cardHTML != null && this.cardHTML.classList.remove("takeDamage");
+        },1000);
+
         (this.health - damage <= 0) ? (this.health = 0) : (this.health -= damage);
         (this.health <= 0) && this.DestroySelf();
 
@@ -139,16 +150,16 @@ class Card{
 }
 
 function Card001(){ //Función constructora de cartas
-    return new Card("Goblin", 1, 1, 2, 2, "./media/goblin.jpg");
+    return new Card("Goblin", 1, 1, 2, 2, "./media/goblin.jpg", 2);
 }
 function Card002(){
-    return new Card("Soldado", 2, 1, 3, 3, "./media/soldier.jpg");
+    return new Card("Soldado", 2, 1, 3, 3, "./media/soldier.jpg", 4);
 }
 function Card003(){
-    return new Card("Brujo", 3, 3, 1, 4,  "./media/brujo.jpg");
+    return new Card("Brujo", 3, 3, 1, 4,  "./media/brujo.jpg", 10);
 }
 function Card004(){
-    return new Card("Golem", 4, 0, 4, 4,  "./media/golem.jpg");
+    return new Card("Golem", 4, 0, 4, 4,  "./media/golem.jpg", 10);
 }
 
 const CardsArray = [Card001, Card002, Card003, Card004];
@@ -162,6 +173,7 @@ class Player{
         this.mana = this.maxMana; //Mana actual
         this.name = name //Nombre del jugador
         this.points = 0;
+        this.damage = 0;
 
         //Propiedades del mazo del jugador
         this.deck = document.getElementById("deck");
@@ -205,27 +217,27 @@ class Player{
             }
     }
     TakeCardFromDeck(){
-        if(this.deckCards.length > 0) {
 
-            let card = this.deckCards[0];
+        if (GameManager.turnOfPlayer == true){
+            if(this.deckCards.length > 0) {
 
-            this.AddCardToHand(card);
-            this.deckCards.shift();
-        } else {
-            Swal.fire({
-                title: 'Mazo vacio!',
-                text: 'No te quedan mas cartas en el mazo',
-                icon: 'error',
-                confirmButtonText: 'Continuar'
-            });
+                let card = this.deckCards[0];
+    
+                this.AddCardToHand(card);
+                this.deckCards.shift();
+            } else {
+                Swal.fire({
+                    title: 'Mazo vacio!',
+                    text: 'No te quedan mas cartas en el mazo',
+                    icon: 'error',
+                    confirmButtonText: 'Continuar'
+                });
+            }
         }
     }
 
     //Funciones de la mano---------------------------
     AddCardToHand(card){
-
-        console.log(card);
-        console.log(User);
 
         let slot = this.EmptySlotInHand();
 
@@ -288,6 +300,27 @@ class Player{
         const index = this.boardCards.indexOf(card);
         index > -1 && this.boardCards.splice(index, 1, null);
     }
+
+    HasCardsInBoard(){
+        for (let i = 0; i < this.boardCards.length; i++){
+            if (this.boardCards[i] != null) return true;
+        }
+        return false;
+    }
+
+    TakeDamage(damage){
+        (this.health - damage <= 0) ? (this.health = 0) : (this.health -= damage);
+        (this.health <= 0) && this.Death();
+    }
+
+    Death(){
+        Swal.fire({
+            title: 'Te han derrotado!',
+            text: 'Ha llegado el final de tu camino...',
+            icon: 'error',
+            confirmButtonText: 'Continuar'
+        });
+    }
 }
 
 
@@ -314,11 +347,54 @@ class Enemy{
         card.slot = slot;
         card.CreateCard();
         slot.appendChild(card.cardHTML);
+
     }
     RemoveCardFromBoard(card){
         const index = this.boardCards.indexOf(card);
 
         index > -1 && this.boardCards.splice(index, 1);
+    }
+
+    SelectCard(){
+        this.selectedCard = this.boardCards[Math.floor(Math.random()*this.boardCards.length)];
+
+        if (this.selectedCard != null)
+            this.selectedCard.cardHTML.classList.add("selected");
+
+        setTimeout(()=>{
+            this.AttackPlayer();
+        },1000);
+    }
+
+    SelectPlayerCard(){
+
+        let card;
+        let playerHasCards = player.HasCardsInBoard();
+
+        while (card == null && playerHasCards){
+            card = player.boardCards[Math.floor(Math.random()*player.boardCards.length)]
+        }
+
+        return card;
+    }
+
+    AttackPlayer(){
+        let playerCardSelected = this.SelectPlayerCard();
+
+        if (playerCardSelected == null) {
+            this.selectedCard.cardHTML.classList.remove("selected");
+            this.selectedCard = null;
+            return GameManager.NextTurn();
+        }
+
+        playerCardSelected.TakeDamage(this.selectedCard.damage);
+        this.selectedCard.TakeDamage(playerCardSelected.damage);
+
+        this.selectedCard != null && this.selectedCard.cardHTML.classList.remove("selected");
+
+        setTimeout(()=>{
+            GameManager.NextTurn()
+        },1000);
     }
 }
 
@@ -334,13 +410,15 @@ let GameManager = {
     levelDisplay:document.getElementById("level-display"),
     cards:[],
     cardsInBoard:0,
-    turnOf: '',
+    turnOfPlayer: true,
+    levelEnd: true,
     StartNextLevel(){
-        if (this.CardsInGame() === 0){
+        if (this.levelEnd){
             this.LevelCards();
             this.levelDisplay.innerHTML = this.level.toString();
             this.level++;
-
+            this.turnOfPlayer = true;
+            this.levelEnd = false
             for (let i=0; i < this.cardsInBoard; i++){
                 let card = this.cards[Math.floor(Math.random() * this.cards.length)]
 
@@ -361,14 +439,19 @@ let GameManager = {
             let pointsReward = 1 * this.level;
             User.points += pointsReward;
             pointsDisplay.innerHTML = User.points;
+
             SaveProgress();
 
-            Swal.fire({
-                title: 'Nivel Superado!',
-                text: `Has obtenido ${pointsReward} ascuas de recompensa!`,
-                icon: 'success',
-                confirmButtonText: 'Continuar'
-            });
+            setTimeout(()=>{
+                this.levelEnd = true;
+                Swal.fire({
+                    title: 'Nivel Superado!',
+                    text: `Has obtenido ${pointsReward} ascuas de recompensa!`,
+                    icon: 'success',
+                    confirmButtonText: 'Continuar'
+                });
+            },1000);
+            
         }
     },
     LevelCards(){
@@ -399,6 +482,80 @@ let GameManager = {
             if (enemy.boardCards[i] != null) cards++;
         }
         return cards;
+    },
+    NextTurn(){
+        this.turnOfPlayer = !this.turnOfPlayer;
+
+        if (!this.turnOfPlayer) {
+            setTimeout(()=>{
+                enemy.SelectCard();
+            }, 500);
+        }
+    }
+}
+
+let Shop = {
+    cardCost:1,
+    cardToBuy:null,
+    async ShowShop(){
+        const {value: card} = await Swal.fire({
+            title: 'Selecciona una carta para forjarla',
+            input: 'select',
+            inputOptions: {
+                Goblin: 'Goblin',
+                Soldado: 'Soldado',
+                Brujo: 'Brujo',
+                Golem: 'Golem'
+            },
+            inputPlaceholder: 'Cartas',
+            showCancelButton: true,
+        })
+
+        if (card) {
+            this.GetCard(card)
+            this.BuyCardConfirm();
+        }
+    },
+
+    BuyCardConfirm(){
+        Swal.fire({
+             title: `Forjar ${this.cardToBuy.name}`,
+             text: `Coste: ${this.cardToBuy.cost}`,
+             icon:'question',
+             showCancelButton: true,
+             confirmButtonText: 'Forjar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (User.points >= this.cardToBuy.cost){
+                    player.AddCardToDeck([this.cardToBuy]);
+                    User.deck.push(this.cardToBuy.ID);
+                    User.points -= this.cardToBuy.cost;
+                    pointsDisplay.innerHTML = User.points;
+
+                    SaveProgress();
+                    SaveDeck();
+                    
+                    Swal.fire({
+                        title:'Forja Exitosa!',
+                        text:`La carta ${this.cardToBuy.name} se ha añadido al mazo.`,
+                        icon:'success'
+                    })
+                } else {
+                    Swal.fire({
+                        title: 'Insuficientes ascuas',
+                        text: `Insuficientes ascuas para forjar ${this.cardToBuy.name}`,
+                        icon:'error'
+                    })
+                }
+            }
+        })
+    },
+
+    GetCard(name){
+        for (let i = 0; i < CardsArray.length; i++){
+            let card = new CardsArray[i];
+            if (card.name == name) this.cardToBuy = card;
+        }
     }
 }
 
@@ -445,8 +602,6 @@ function StartGame(){
     enemy = new Enemy("Enemigo");
     
     pointsDisplay.innerHTML = User.points;
-
-    GameManager.turnOf = playerName;
     
     player.deck.addEventListener('click', () => {
         player.TakeCardFromDeck();

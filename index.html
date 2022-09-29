@@ -15,10 +15,16 @@
 <body>
 
     <div class="main-content">
+        <div class="float-end">
+            <button type="button" class="btn btn-primary" onclick="Shop.ShowShop()">Comprar Carta</button>
+        </div>
+
         <h1 class="info-display">Nivel: <span id="level-display"></span></h1>
         <h1 class="info-display">Usuario: <span id="user-display"></span></h1>
         <h1 class="info-display">Ascuas: <span id="user-points"></span></h1>
         <button type="button" class="btn btn-primary" onclick="GameManager.StartNextLevel()">Siguiente Nivel</button>
+        
+
         <div class="container board">
             <div class="row card-row">
                 <div class="container text-center card-container-top">
