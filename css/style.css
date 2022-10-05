@@ -144,6 +144,25 @@ body{
     border: 5px solid #aa9d83;
 }
 
+#master{
+    font-weight: bold;
+    cursor: default;
+}
+#master .card-body{
+    padding: 0px;
+}
+#master h3{
+    padding: 3px;
+}
+.master-health{
+    background-color: #6CC282;
+    padding: 5px;
+}
+.master-mana{
+    background-color: #9DD6EA;
+    padding: 5px;
+}
+
 
 @media screen and (max-width: 1199px){
     .card img{

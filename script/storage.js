@@ -1,5 +1,15 @@
 let users = localStorage.getItem('users');
 
+let cardsData = [];
+
+fetch('script/data.json')
+    .then((resp) => resp.json())
+    .then((data) => {
+        cardsData = data[0];
+    })
+
+
+
 function SaveUser(){
 
     let usersParce = [];
@@ -14,7 +24,7 @@ function SaveUser(){
         User.name = playerName;
         User.points = 0;
         User.unlockCards = [];
-        User.deck = [1, 1, 1, 2, 2];
+        User.deck = [1, 1, 3, 2, 5];
 
         SaveDeck();
         LoadDeck();
@@ -42,6 +52,7 @@ function IsUserRegistered(usersParce){
 
 function SaveProgress(){
 
+    console.log(User.deck);
     localStorage.setItem(`${playerName}Points`, JSON.stringify(User.points));
 
 }
@@ -79,6 +90,7 @@ function LoadDeck(){
         }
     }
 
+    User.deck = deck;
     player.AddCardToDeck(deckCards);
 }
 

@@ -1,169 +1,3 @@
-//CLase padre de todas las cartas
-class Card{
-    constructor(name, ID,damage,maxHealth, manaCost, image, cost){ //Estadisticas de las cartas
-        this.name = name;
-        this.ID = ID;
-        this.damage = damage;
-        this.maxHealth = maxHealth;
-        this.health = this.maxHealth;
-        this.manaCost = manaCost;
-        this.master;
-        this.image = image;
-        this.cardHTML;
-        this.damageHTML;
-        this.healthHTML;
-        this.slot = null;
-        this.isInBoard = false;
-        this.state = "inDeck";
-        this.cost = cost;
-    }
-
-    MoveToHand(index){
-
-        let slot = this.master.hand.children[index];
-
-        this.slot = slot;
-        this.CreateCard();
-        this.slot.appendChild(this.cardHTML);
-        this.state = "inHand";
-    }
-
-    MoveToBoard(){
-        let slot = this.master.EmptySlotInBoard();
-
-        if (slot >= 0){
-            this.slot.innerHTML = "";
-            this.master.RemoveCardFromHand(this);
-    
-            this.slot = this.master.board.children[slot];
-            this.master.AddCardToBoard(this);
-            this.slot.appendChild(this.cardHTML);
-            this.state = "inBoard"
-        } else {
-            Swal.fire({
-                title: 'Tablero lleno!',
-                text: 'Tienes el máximo de cartas posible en el tablero.',
-                icon: 'error',
-                confirmButtonText: 'Continuar'
-            });
-        }
-    }
-
-    CreateCard(){ //Esta función crea los elementos HTML de la carta
-        this.cardHTML = document.createElement('div');
-        
-        this.cardHTML.classList.add(`card`);
-        this.cardHTML.classList.add(`${this.master.name}`)
-
-
-        this.OnClick();
-
-        //Html de la carta
-        this.cardHTML.innerHTML += `
-            <h5 class="card-mana"> ${this.manaCost} </h5>
-            <img src="${this.image}" alt="">
-            <div class="card-body">
-                <div class="container">
-                    <div class="row">
-                        <div class="col">
-                            <h4 class="card-tittle">${this.name}</h4>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-3 p-0">
-                            <h5 class="card-damage">${this.damage}</h5>
-                        </div>
-                        <div class="col-lg-6">
-                        </div>
-                        <div class="col-lg-3 p-0">
-                            <h5 class="card-health">${this.health}</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        this.damageHTML = this.cardHTML.getElementsByClassName("card-damage")[0]; //Guarda el elemento que muestra el daño de la carta por pantalla
-        this.healthHTML = this.cardHTML.getElementsByClassName("card-health")[0]; //Guarda el elemento que muestra la vida de la carta por pantalla
-    }
-
-    OnClick(){
-        if (this.master == player){
-            this.cardHTML.addEventListener('click', () => {
-                if (GameManager.turnOfPlayer == true){
-                    if (this.state == "inHand"){
-                        this.MoveToBoard();
-                        return;
-                    }
-                    if (this.state == "inBoard"){
-    
-                        if(this.master.selectedCard != null){
-                            this.master.selectedCard.cardHTML.classList.remove("selected");
-                            this.master.selectedCard = null;
-                        }
-    
-                        this.master.selectedCard = this;
-                        this.cardHTML.classList.toggle("selected");
-                        return;
-                    }
-                }  
-            });
-        }
-        if (this.master == enemy){
-            this.cardHTML.addEventListener('click', () => {
-                if (GameManager.turnOfPlayer == true) {
-                    if (player.selectedCard != null){
-                        this.TakeDamage(player.selectedCard.damage);
-                        player.selectedCard.TakeDamage(this.damage);
-                        player.selectedCard != null && player.selectedCard.cardHTML.classList.toggle("selected");
-                        player.selectedCard = null;
-                        GameManager.NextTurn();
-                    }
-                }
-            })
-        }
-    }
-
-    TakeDamage(damage){ //Función llamada cuando la carta recibe daño
-        
-        this.cardHTML != null && this.cardHTML.classList.add("takeDamage");
-
-        setTimeout(()=>{
-            this.cardHTML != null && this.cardHTML.classList.remove("takeDamage");
-        },1000);
-
-        (this.health - damage <= 0) ? (this.health = 0) : (this.health -= damage);
-        (this.health <= 0) && this.DestroySelf();
-
-        this.healthHTML.textContent = this.health; //Actualizo la vida de la carta en el display
-    }
-
-    DestroySelf(){ //Función que cumprueba si la vida de la carta es menor o igual a 0 para establecer el estado de "muerto"
-        this.master.selectedCard = null;
-        this.master.RemoveCardFromBoard(this);
-        this.slot.innerHTML = "";
-
-        if (this.master == enemy){
-            GameManager.EndLevel();
-        }
-    }
-}
-
-function Card001(){ //Función constructora de cartas
-    return new Card("Goblin", 1, 1, 2, 2, "./media/goblin.jpg", 2);
-}
-function Card002(){
-    return new Card("Soldado", 2, 1, 3, 3, "./media/soldier.jpg", 4);
-}
-function Card003(){
-    return new Card("Brujo", 3, 3, 1, 4,  "./media/brujo.jpg", 10);
-}
-function Card004(){
-    return new Card("Golem", 4, 0, 4, 4,  "./media/golem.jpg", 10);
-}
-
-const CardsArray = [Card001, Card002, Card003, Card004];
-
 //Clase padre del jugador
 class Player{
     constructor(maxHealth, maxMana, name){
@@ -178,7 +12,7 @@ class Player{
         //Propiedades del mazo del jugador
         this.deck = document.getElementById("deck");
         this.deckCards = [];
-        this.deckSize = 20;
+        this.deckSize = 10;
 
         //Propiedades de la mano del jugador
         this.hand = document.getElementById("hand");
@@ -309,8 +143,21 @@ class Player{
     }
 
     TakeDamage(damage){
+
+        const playerDisplay = document.getElementById("master");
+        playerDisplay.classList.add('takeDamage');
+        setTimeout(() => {
+            playerDisplay.classList.remove('takeDamage');
+        }, 500);
+
         (this.health - damage <= 0) ? (this.health = 0) : (this.health -= damage);
         (this.health <= 0) && this.Death();
+        this.UpdateHealth();
+    }
+
+    UpdateHealth(){
+        const healthDisplay = document.getElementById("player-health");
+        healthDisplay.innerHTML = this.health;
     }
 
     Death(){
@@ -320,6 +167,17 @@ class Player{
             icon: 'error',
             confirmButtonText: 'Continuar'
         });
+    }
+
+    UpdateMana(mana){
+
+        this.mana += mana;
+
+        (this.mana > this.maxMana) && (this.mana = this.maxMana);
+        (this.mana < 0) && (this.mana = 0);
+
+        const playerManaDisplay = document.getElementById("player-mana");
+        playerManaDisplay.innerHTML = player.mana;
     }
 }
 
@@ -371,6 +229,10 @@ class Enemy{
         let card;
         let playerHasCards = player.HasCardsInBoard();
 
+        if (!playerHasCards){
+            return player;
+        }
+
         while (card == null && playerHasCards){
             card = player.boardCards[Math.floor(Math.random()*player.boardCards.length)]
         }
@@ -387,8 +249,10 @@ class Enemy{
             return GameManager.NextTurn();
         }
 
-        playerCardSelected.TakeDamage(this.selectedCard.damage);
-        this.selectedCard.TakeDamage(playerCardSelected.damage);
+        if (this.selectedCard != null){
+            playerCardSelected.TakeDamage(this.selectedCard.damage);
+            this.selectedCard.TakeDamage(playerCardSelected.damage);
+        }
 
         this.selectedCard != null && this.selectedCard.cardHTML.classList.remove("selected");
 
@@ -419,6 +283,7 @@ let GameManager = {
             this.level++;
             this.turnOfPlayer = true;
             this.levelEnd = false
+
             for (let i=0; i < this.cardsInBoard; i++){
                 let card = this.cards[Math.floor(Math.random() * this.cards.length)]
 
@@ -490,71 +355,8 @@ let GameManager = {
             setTimeout(()=>{
                 enemy.SelectCard();
             }, 500);
-        }
-    }
-}
-
-let Shop = {
-    cardCost:1,
-    cardToBuy:null,
-    async ShowShop(){
-        const {value: card} = await Swal.fire({
-            title: 'Selecciona una carta para forjarla',
-            input: 'select',
-            inputOptions: {
-                Goblin: 'Goblin',
-                Soldado: 'Soldado',
-                Brujo: 'Brujo',
-                Golem: 'Golem'
-            },
-            inputPlaceholder: 'Cartas',
-            showCancelButton: true,
-        })
-
-        if (card) {
-            this.GetCard(card)
-            this.BuyCardConfirm();
-        }
-    },
-
-    BuyCardConfirm(){
-        Swal.fire({
-             title: `Forjar ${this.cardToBuy.name}`,
-             text: `Coste: ${this.cardToBuy.cost}`,
-             icon:'question',
-             showCancelButton: true,
-             confirmButtonText: 'Forjar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                if (User.points >= this.cardToBuy.cost){
-                    player.AddCardToDeck([this.cardToBuy]);
-                    User.deck.push(this.cardToBuy.ID);
-                    User.points -= this.cardToBuy.cost;
-                    pointsDisplay.innerHTML = User.points;
-
-                    SaveProgress();
-                    SaveDeck();
-                    
-                    Swal.fire({
-                        title:'Forja Exitosa!',
-                        text:`La carta ${this.cardToBuy.name} se ha añadido al mazo.`,
-                        icon:'success'
-                    })
-                } else {
-                    Swal.fire({
-                        title: 'Insuficientes ascuas',
-                        text: `Insuficientes ascuas para forjar ${this.cardToBuy.name}`,
-                        icon:'error'
-                    })
-                }
-            }
-        })
-    },
-
-    GetCard(name){
-        for (let i = 0; i < CardsArray.length; i++){
-            let card = new CardsArray[i];
-            if (card.name == name) this.cardToBuy = card;
+        } else {
+            player.UpdateMana(2);
         }
     }
 }
@@ -587,9 +389,12 @@ Swal.fire({
 //Creo dos master principales
 //Primero el jugador:
 //---------------------Vida--Mana--Cartas Desbloqueadas -- Nombre
-const player = new Player(10, 20, playerName);
+const player = new Player(20, 10, playerName);
 const userDisplay = document.getElementById("user-display");
 const pointsDisplay = document.getElementById("user-points");
+const masterNameDisplay = document.getElementById("player-name");
+
+
 
 let enemy;
 
@@ -597,6 +402,7 @@ function StartGame(){
     userDisplay.innerHTML = User.name;
     pointsDisplay.innerHTML = User.points;
 
+    masterNameDisplay.innerHTML = playerName;
     player.name = playerName;
 
     enemy = new Enemy("Enemigo");
@@ -607,3 +413,4 @@ function StartGame(){
         player.TakeCardFromDeck();
     })
 }
+
