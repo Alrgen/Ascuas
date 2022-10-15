@@ -1,11 +1,12 @@
 //Clase padre del jugador
 class Player{
     constructor(maxHealth, maxMana, name){
-        this.maxHealth = maxHealth; //Vida maxima del jugador
-        this.health = this.maxHealth; //Vida actual
-        this.maxMana = maxMana; //Mana maximo (sera consumido al invocar cartas)
-        this.mana = this.maxMana; //Mana actual
-        this.name = name //Nombre del jugador
+        //Estadisticas del jugador
+        this.maxHealth = maxHealth; 
+        this.health = this.maxHealth; 
+        this.maxMana = maxMana;
+        this.mana = this.maxMana;
+        this.name = name
         this.points = 0;
         this.damage = 0;
 
@@ -24,7 +25,7 @@ class Player{
         this.boardCards = [null, null, null, null, null];
         this.boardSize = 5;
 
-        this.selectedCard = null; //Carta que tiene seleccionado el jugador 
+        this.selectedCard = null;
     }
 
     //Funciones del mazo-----------------------
@@ -142,6 +143,8 @@ class Player{
         return false;
     }
 
+
+    //Funciones de intereaccion ------------------------------------------
     TakeDamage(damage){
 
         const playerDisplay = document.getElementById("master");
@@ -154,12 +157,6 @@ class Player{
         (this.health <= 0) && this.Death();
         this.UpdateHealth();
     }
-
-    UpdateHealth(){
-        const healthDisplay = document.getElementById("player-health");
-        healthDisplay.innerHTML = this.health;
-    }
-
     Death(){
         Swal.fire({
             title: 'Te han derrotado!',
@@ -169,6 +166,10 @@ class Player{
         });
     }
 
+    UpdateHealth(){
+        const healthDisplay = document.getElementById("player-health");
+        healthDisplay.innerHTML = this.health;
+    }
     UpdateMana(mana){
 
         this.mana += mana;
@@ -191,7 +192,7 @@ class Enemy{
         this.boardCards = [];
         this.boardSize = 5;
 
-        this.selectedCard = null; //Carta que tiene seleccionado el jugador 
+        this.selectedCard = null;
     }
 
     AddCardToBoard(card){
@@ -262,18 +263,17 @@ class Enemy{
     }
 }
 
-let User = {
+let User = { //Usuario utilizado para guardar y cargar datos del jugador
     name:"",
     points:0,
-    unlockCards:[],
     deck:[]
 }
 
-let GameManager = {
+let GameManager = { //Objeto controlador de los niveles del juego
     level:0,
     levelDisplay:document.getElementById("level-display"),
-    cards:[],
-    cardsInBoard:0,
+    cards:[], //Cartas que pueden aparecer en el nivel
+    cardsInBoard:0, //Cantidad de cartas enemigas en el tablero por nivel
     turnOfPlayer: true,
     levelEnd: true,
     StartNextLevel(){
@@ -331,17 +331,24 @@ let GameManager = {
                 break;
             case 6:
                 this.cards.push(Card003);
-                this.cardsInBoard = 3;
                 break;
             case 9:
+                this.cardsInBoard = 3;
+                break;
+            case 12:
                 this.cards.push(Card004);
+                break;
+            case 15:
                 this.cardsInBoard = 4;
+                break;
+            case 20:
+                this.cards.push(Card005);
                 break;
             default:
                 break;
         }
     },
-    CardsInGame(){
+    CardsInGame(){  //Comprueba si quedan cartas enemigas en el tablero
         let cards = 0;
         for (let i = 0; i < enemy.boardCards.length; i++){
             if (enemy.boardCards[i] != null) cards++;
@@ -366,6 +373,8 @@ const boardBottom = document.getElementById("board-bottom"); //Parte inferior de
 
 let playerName = "";
 
+
+//Alerta de inicio de usuario
 Swal.fire({
     title: 'Ingrese su nombre de usuario',
     html: `<input type="text" id="user" class="swal2-input" placeholder="Nombre de Usuario">`,
@@ -386,18 +395,14 @@ Swal.fire({
     StartGame();
 })
 
-//Creo dos master principales
-//Primero el jugador:
-//---------------------Vida--Mana--Cartas Desbloqueadas -- Nombre
 const player = new Player(20, 10, playerName);
 const userDisplay = document.getElementById("user-display");
 const pointsDisplay = document.getElementById("user-points");
 const masterNameDisplay = document.getElementById("player-name");
 
-
-
 let enemy;
 
+//Funcion que da inicio al juego luego de que un usuario fue cargado
 function StartGame(){
     userDisplay.innerHTML = User.name;
     pointsDisplay.innerHTML = User.points;

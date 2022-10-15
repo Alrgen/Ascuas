@@ -23,13 +23,10 @@ function SaveUser(){
 
         User.name = playerName;
         User.points = 0;
-        User.unlockCards = [];
-        User.deck = [1, 1, 3, 2, 5];
+        User.deck = [1, 1, 1, 2, 2]; //Utilizo la ID de cada carta para guardarlas en el local storage y luego lo utilizo para encontrar la carta correspondiente al cargar el mazo
 
         SaveDeck();
         LoadDeck();
-
-        //localStorage.setItem(`${playerName}Deck`, JSON.stringify(player.deckCards));
 
         Swal.fire({
             title: 'Usuario Guardado!',
@@ -52,14 +49,13 @@ function IsUserRegistered(usersParce){
 
 function SaveProgress(){
 
-    console.log(User.deck);
     localStorage.setItem(`${playerName}Points`, JSON.stringify(User.points));
 
 }
 
 function LoadProgress(user){
 
-    User.name = playerName;
+    User.name = playerName; //playerName es el valor que ingreso el usuario al inicio de la aplicacion
     User.points = JSON.parse(localStorage.getItem(`${user}Points`));
 
     LoadDeck();
@@ -77,8 +73,6 @@ function SaveDeck(){
 }
 
 function LoadDeck(){
-
-    console.log(User.name);
 
     let deck = JSON.parse(localStorage.getItem(`${User.name}Deck`));
     let deckCards = []

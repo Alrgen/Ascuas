@@ -1,6 +1,7 @@
 //CLase padre de todas las cartas
 class Card{
-    constructor(data){ //Estadisticas de las cartas
+    constructor(data){ 
+        //Estadisticas de las cartas
         this.name = data.name;
         this.ID = data.ID;
         this.damage = data.damage;
@@ -83,8 +84,8 @@ class Card{
             </div>
         `;
 
-        this.damageHTML = this.cardHTML.getElementsByClassName("card-damage")[0]; //Guarda el elemento que muestra el daño de la carta por pantalla
-        this.healthHTML = this.cardHTML.getElementsByClassName("card-health")[0]; //Guarda el elemento que muestra la vida de la carta por pantalla
+        this.damageHTML = this.cardHTML.getElementsByClassName("card-damage")[0];
+        this.healthHTML = this.cardHTML.getElementsByClassName("card-health")[0];
     }
 
     OnClick(){
@@ -135,9 +136,9 @@ class Card{
         }
     }
 
-    TakeDamage(damage){ //Función llamada cuando la carta recibe daño
-        
-        this.cardHTML != null && this.cardHTML.classList.add("takeDamage");
+    TakeDamage(damage){
+        //Utilizo la clase html "takeDamage" para añadir el efecto de recibir daño en las cartas
+        this.cardHTML != null && this.cardHTML.classList.add("takeDamage"); 
 
         setTimeout(()=>{
             this.cardHTML != null && this.cardHTML.classList.remove("takeDamage");
@@ -146,10 +147,10 @@ class Card{
         (this.health - damage <= 0) ? (this.health = 0) : (this.health -= damage);
         (this.health <= 0) && this.DestroySelf();
 
-        this.healthHTML.textContent = this.health; //Actualizo la vida de la carta en el display
+        this.healthHTML.textContent = this.health;
     }
 
-    DestroySelf(){ //Función que cumprueba si la vida de la carta es menor o igual a 0 para establecer el estado de "muerto"
+    DestroySelf(){ 
         this.master.selectedCard = null;
         this.master.RemoveCardFromBoard(this);
         this.slot.innerHTML = "";
