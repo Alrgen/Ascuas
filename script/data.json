@@ -4,6 +4,6 @@
         {"name":"Soldado", "ID":2,"damage":1,"health":3,"manaCost":2,"image":"./media/soldier.jpg","cost":4},
         {"name":"Brujo", "ID":3,"damage":3,"health":2,"manaCost":4,"image":"./media/brujo.jpg","cost":10},
         {"name":"Golem", "ID":4,"damage":1,"health":5,"manaCost":4,"image":"./media/golem.jpg","cost":12},
-        {"name":"Orco", "ID":5,"damage":2,"health":4,"manaCost":4,"image":"./media/orco.jpg","cost":1}
+        {"name":"Orco", "ID":5,"damage":2,"health":4,"manaCost":4,"image":"./media/orco.jpg","cost":18}
     ]
 ]
